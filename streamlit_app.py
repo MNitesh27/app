@@ -9,709 +9,1134 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;700&family=Noto+Sans+Devanagari:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Noto+Sans+Devanagari:wght@400;600&display=swap');
 
+/* ── Design tokens ── */
 :root {
-    --saffron:    #E8732A;
-    --marigold:   #F5A623;
-    --teal:       #1A7A6E;
-    --terracotta: #C4593A;
-    --cream:      #FDF6EC;
-    --ink:        #2C1810;
-    --muted:      #7A6055;
-    --card-bg:    #FFFAF3;
+    --orange:      #E8621A;
+    --orange-soft: #F47B3A;
+    --orange-pale: #FFF3EC;
+    --marigold:    #F5A623;
+    --saffron:     #E8732A;
+    --white:       #FFFFFF;
+    --off-white:   #F8F9FA;
+    --surface:     #F0F0F0;
+    --ink:         #202124;
+    --ink-mid:     #5F6368;
+    --ink-light:   #9AA0A6;
+    --border:      #E8EAED;
+    --card-radius: 24px;
+    --pill-radius: 999px;
 }
 
+/* ── Reset ── */
 html, body, [class*="css"] {
-    font-family: 'Lato', sans-serif;
-    background-color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
     color: var(--ink);
+    -webkit-font-smoothing: antialiased;
 }
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding: 0 !important; max-width: 100% !important; }
 
-/* ── Animations ── */
+/* ════════════════════════════════
+   ANIMATIONS
+════════════════════════════════ */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
 @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    33%       { transform: translateY(-18px) rotate(3deg); }
-    66%       { transform: translateY(-8px) rotate(-2deg); }
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-12px); }
 }
-@keyframes flicker {
-    0%, 100% { opacity:1; transform: scaleY(1) scaleX(1); }
-    25%       { opacity:.85; transform: scaleY(1.08) scaleX(0.95); }
-    50%       { opacity:.9; transform: scaleY(0.95) scaleX(1.05); }
-    75%       { opacity:.95; transform: scaleY(1.05) scaleX(0.98); }
-}
-@keyframes shimmer {
-    0%   { background-position: -200% center; }
-    100% { background-position:  200% center; }
-}
-@keyframes spin-slow {
-    from { transform: translateY(-50%) rotate(0deg); }
-    to   { transform: translateY(-50%) rotate(360deg); }
-}
-@keyframes pulse-ring {
-    0%   { transform: scale(1); opacity:.6; }
-    100% { transform: scale(1.5); opacity:0; }
-}
-@keyframes fadeInUp {
-    from { opacity:0; transform: translateY(28px); }
-    to   { opacity:1; transform: translateY(0); }
+@keyframes shimmer-text {
+    0%   { background-position: -300% center; }
+    100% { background-position:  300% center; }
 }
 @keyframes ticker {
-    0%   { transform: translateX(100vw); }
-    100% { transform: translateX(-100%); }
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
-@keyframes bounce-in {
-    0%   { transform: scale(0.85); opacity:0; }
-    60%  { transform: scale(1.04); }
-    100% { transform: scale(1); opacity:1; }
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes pulse-dot {
+    0%, 100% { transform: scale(1);   opacity: 1; }
+    50%       { transform: scale(1.4); opacity: 0.6; }
+}
+@keyframes card-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0);    }
 }
 
-/* ── Festival ticker ── */
-.ticker-wrap {
-    background: var(--saffron);
-    overflow: hidden;
-    padding: 10px 0;
-    white-space: nowrap;
+/* ════════════════════════════════
+   TOP NAV BAR  (Google Store style: white, thin, sticky)
+════════════════════════════════ */
+.topnav {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 64px;
 }
-.ticker-content {
-    display: inline-block;
-    animation: ticker 35s linear infinite;
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
+.topnav-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+}
+.topnav-brand span {
+    color: var(--orange);
+}
+.topnav-deva {
+    font-family: 'Noto Sans Devanagari', sans-serif;
     font-size: 13px;
-    letter-spacing: 2px;
+    color: var(--ink-light);
+    margin-left: 8px;
+    font-weight: 400;
+}
+.topnav-cta {
+    background: var(--orange);
     color: white;
-    padding-left: 100%;
+    border-radius: var(--pill-radius);
+    padding: 10px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background .2s, box-shadow .2s, transform .15s;
+    display: inline-block;
+}
+.topnav-cta:hover {
+    background: var(--orange-soft);
+    box-shadow: 0 4px 16px rgba(232,98,26,0.3);
+    transform: translateY(-1px);
 }
 
-/* ── Hero ── */
+/* ════════════════════════════════
+   FESTIVAL TICKER
+════════════════════════════════ */
+.ticker-outer {
+    background: var(--orange);
+    overflow: hidden;
+    padding: 9px 0;
+}
+.ticker-inner {
+    display: flex;
+    width: max-content;
+    animation: ticker 28s linear infinite;
+}
+.ticker-track {
+    display: flex;
+    gap: 0;
+    white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: .5px;
+    color: white;
+}
+.ticker-sep { margin: 0 20px; opacity: 0.5; }
+
+/* ════════════════════════════════
+   HERO  (Google Store: full bleed, big type, pale bg)
+════════════════════════════════ */
 .hero {
-    background: linear-gradient(135deg, #1a0f08 0%, #0f3330 45%, #2C1810 100%);
-    padding: 64px 60px 52px;
+    background: var(--off-white);
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    padding: 80px 80px 80px 80px;
     position: relative;
     overflow: hidden;
-    min-height: 320px;
 }
-.hero-rangoli {
-    position: absolute;
-    right: 80px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 240px;
-    height: 240px;
-    opacity: 0.17;
-    animation: spin-slow 40s linear infinite;
-}
+.hero-text { max-width: 580px; z-index: 2; position: relative; }
 .hero-eyebrow {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 3px;
     text-transform: uppercase;
-    color: var(--marigold);
-    margin-bottom: 12px;
-    animation: fadeInUp .8s ease both;
+    color: var(--orange);
+    margin-bottom: 20px;
+    animation: fadeUp .7s ease both;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.hero-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--orange);
+    display: inline-block;
+    animation: pulse-dot 2s ease-in-out infinite;
 }
 .hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(44px, 6vw, 76px);
-    color: var(--cream);
-    line-height: 1.1;
-    margin: 0 0 6px;
-    animation: fadeInUp .8s ease .15s both;
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(48px, 6vw, 80px);
+    line-height: 1.05;
+    color: var(--ink);
+    margin: 0 0 8px;
+    letter-spacing: -1.5px;
+    animation: fadeUp .7s ease .1s both;
 }
-.hero-title span {
-    background: linear-gradient(90deg, var(--saffron), var(--marigold), var(--saffron));
-    background-size: 200% auto;
+.hero-title-accent {
+    background: linear-gradient(90deg, var(--orange), var(--marigold), var(--saffron), var(--orange));
+    background-size: 300% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: shimmer 3s linear infinite;
-    display: inline;
+    animation: shimmer-text 4s linear infinite;
+    font-style: italic;
 }
 .hero-deva {
     font-family: 'Noto Sans Devanagari', sans-serif;
-    font-size: 28px;
-    color: rgba(253,246,236,0.35);
-    margin-bottom: 20px;
-    animation: fadeInUp .8s ease .3s both;
+    font-size: 20px;
+    color: var(--ink-light);
+    margin-bottom: 24px;
+    animation: fadeUp .7s ease .2s both;
 }
-.hero-tagline {
-    font-family: 'Lato', sans-serif;
+.hero-sub {
+    font-family: 'DM Sans', sans-serif;
     font-weight: 300;
-    font-size: 18px;
-    color: rgba(253,246,236,0.82);
-    max-width: 520px;
-    line-height: 1.7;
-    animation: fadeInUp .8s ease .45s both;
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--ink-mid);
+    max-width: 480px;
+    margin-bottom: 40px;
+    animation: fadeUp .7s ease .3s both;
+}
+.hero-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    animation: fadeUp .7s ease .4s both;
+}
+.btn-primary {
+    background: var(--orange);
+    color: white;
+    border-radius: var(--pill-radius);
+    padding: 15px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background .2s, box-shadow .2s, transform .15s;
+}
+.btn-primary:hover {
+    background: var(--orange-soft);
+    box-shadow: 0 6px 20px rgba(232,98,26,0.35);
+    transform: translateY(-2px);
+}
+.btn-ghost {
+    background: transparent;
+    color: var(--orange);
+    border: 1.5px solid var(--orange);
+    border-radius: var(--pill-radius);
+    padding: 14px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background .2s, transform .15s;
+}
+.btn-ghost:hover {
+    background: var(--orange-pale);
+    transform: translateY(-2px);
 }
 
-/* ── Floating diyas ── */
-.diya-row {
+/* Hero visual — right side */
+.hero-visual {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 45%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+.hero-circle-bg {
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-pale) 0%, #FFE5CC 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.hero-emoji-main {
+    font-size: 110px;
+    animation: float 3.5s ease-in-out infinite;
+    filter: drop-shadow(0 20px 40px rgba(232,98,26,0.2));
+    display: block;
+}
+.hero-emoji-orbit {
+    position: absolute;
+    font-size: 36px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+.orbit-1 { top: 40px;  left: 50px;  animation: float 2.8s ease-in-out .3s infinite; }
+.orbit-2 { top: 60px;  right: 45px; animation: float 3.2s ease-in-out .8s infinite; }
+.orbit-3 { bottom: 60px; left: 40px; animation: float 3.0s ease-in-out .5s infinite; }
+.orbit-4 { bottom: 50px; right: 50px; animation: float 2.6s ease-in-out 1.0s infinite; }
+
+/* Rangoli watermark */
+.rangoli-bg {
+    position: absolute;
+    opacity: 0.06;
+    width: 300px; height: 300px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin-slow 60s linear infinite;
+}
+
+/* ════════════════════════════════
+   STATS BAR  (Google Store: clean white strip with numbers)
+════════════════════════════════ */
+.stats-bar {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: center;
-    gap: 36px;
-    padding: 28px 0 14px;
-    background: linear-gradient(180deg, #1a0f08 0%, var(--cream) 100%);
-}
-.diya { font-size: 38px; display: inline-block; filter: drop-shadow(0 0 10px rgba(245,166,35,.7)); }
-.diya:nth-child(1) { animation: float 3.2s ease-in-out infinite; }
-.diya:nth-child(2) { animation: float 3.8s ease-in-out .4s infinite; }
-.diya:nth-child(3) { animation: float 3.0s ease-in-out .8s infinite; }
-.diya:nth-child(4) { animation: float 3.5s ease-in-out 1.2s infinite; }
-.diya:nth-child(5) { animation: float 3.2s ease-in-out .6s infinite; }
-
-/* ── Tabs ── */
-.stTabs [data-baseweb="tab-list"] {
-    background: #2C1810;
-    padding: 0 60px;
     gap: 0;
-    border-bottom: none;
+    padding: 0;
 }
-.stTabs [data-baseweb="tab"] {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: rgba(253,246,236,0.5) !important;
-    padding: 18px 24px;
-    border: none !important;
-    border-bottom: 3px solid transparent !important;
-    background: transparent !important;
-    transition: all .25s;
+.stat-item {
+    flex: 1;
+    max-width: 240px;
+    text-align: center;
+    padding: 36px 24px;
+    border-right: 1px solid var(--border);
 }
-.stTabs [aria-selected="true"] {
-    color: var(--marigold) !important;
-    border-bottom: 3px solid var(--saffron) !important;
-}
-.stTabs [data-baseweb="tab-panel"] { padding: 0 !important; background: var(--cream); }
-
-/* ── Sections ── */
-.section { max-width: 900px; margin: 0 auto; padding: 56px 40px; }
-.section-label {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--saffron);
+.stat-item:last-child { border-right: none; }
+.stat-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 44px;
+    color: var(--orange);
+    line-height: 1;
     margin-bottom: 8px;
 }
-.section-heading {
-    font-family: 'Playfair Display', serif;
-    font-size: 36px;
-    color: var(--ink);
-    margin: 0 0 6px;
-    line-height: 1.2;
+.stat-label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--ink-mid);
+    letter-spacing: .3px;
 }
-.section-heading em { color: var(--teal); font-style: italic; }
-.prose {
-    font-family: 'Lato', sans-serif;
+
+/* ════════════════════════════════
+   TABS  (Google Store: minimal, underline only)
+════════════════════════════════ */
+.stTabs [data-baseweb="tab-list"] {
+    background: var(--white);
+    padding: 0 48px;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+}
+.stTabs [data-baseweb="tab"] {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--ink-mid) !important;
+    padding: 20px 22px;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+    transition: color .2s;
+    letter-spacing: .1px;
+}
+.stTabs [data-baseweb="tab"]:hover { color: var(--ink) !important; }
+.stTabs [aria-selected="true"] {
+    color: var(--orange) !important;
+    border-bottom: 2px solid var(--orange) !important;
+}
+.stTabs [data-baseweb="tab-panel"] { padding: 0 !important; background: var(--white); }
+
+/* ════════════════════════════════
+   PAGE SECTIONS
+════════════════════════════════ */
+.page-section {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 72px 48px;
+}
+.page-section-full {
+    padding: 72px 48px;
+}
+
+/* Section label + heading */
+.s-label {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+}
+.s-heading {
+    font-family: 'DM Serif Display', serif;
+    font-size: 40px;
+    color: var(--ink);
+    margin: 0 0 8px;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+}
+.s-heading em { font-style: italic; color: var(--orange); }
+.s-body {
+    font-family: 'DM Sans', sans-serif;
     font-weight: 300;
     font-size: 17px;
-    line-height: 1.85;
-    color: #4A3328;
-    max-width: 680px;
+    line-height: 1.8;
+    color: var(--ink-mid);
+    max-width: 640px;
 }
 
-/* ── Cards ── */
-.cards-row {
+/* ════════════════════════════════
+   SUBJECT CARDS  (Google Store product cards)
+════════════════════════════════ */
+.subjects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
-    margin-top: 34px;
+    margin-top: 40px;
 }
-.card {
-    background: var(--card-bg);
-    border: 1.5px solid rgba(232,115,42,0.15);
-    border-radius: 16px;
-    padding: 28px 16px 22px;
+.subject-card {
+    background: var(--off-white);
+    border-radius: var(--card-radius);
+    padding: 32px 20px 28px;
     text-align: center;
-    transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s, border-color .25s;
-    animation: bounce-in .5s ease both;
     cursor: default;
+    transition: background .25s, transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+    animation: card-in .5s ease both;
+    border: 1.5px solid transparent;
 }
-.card:hover {
-    transform: translateY(-9px) scale(1.04);
-    box-shadow: 0 18px 40px rgba(44,24,16,0.13);
-    border-color: var(--saffron);
+.subject-card:hover {
+    background: var(--orange-pale);
+    border-color: rgba(232,98,26,0.2);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(232,98,26,0.12);
 }
-.card-icon { font-size: 36px; margin-bottom: 12px; display: block; }
-.card-title { font-family: 'Lato', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: .5px; color: var(--ink); margin-bottom: 5px; }
-.card-sub   { font-family: 'Lato', sans-serif; font-weight: 300; font-size: 12px; color: var(--muted); }
+.subject-card:hover .subject-icon { transform: scale(1.15); }
+.subject-icon {
+    font-size: 40px;
+    margin-bottom: 14px;
+    display: block;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.subject-name {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 6px;
+}
+.subject-desc {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    color: var(--ink-mid);
+    line-height: 1.5;
+}
 
-/* ── Quote ── */
-.quote-block {
-    border-left: 4px solid var(--saffron);
-    padding: 22px 32px;
+/* ════════════════════════════════
+   FULL-BLEED FEATURE BLOCK
+   (Google Store: alternating image + text panels)
+════════════════════════════════ */
+.feature-block {
+    background: var(--off-white);
+    padding: 72px 80px;
+    display: flex;
+    align-items: center;
+    gap: 72px;
+}
+.feature-block.flipped { flex-direction: row-reverse; background: var(--white); }
+.feature-text { flex: 1; }
+.feature-visual {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.feature-emoji-wrap {
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--orange-pale), #FFD9BB);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 90px;
+    animation: float 4s ease-in-out infinite;
+    box-shadow: 0 20px 60px rgba(232,98,26,0.15);
+}
+.feature-emoji-square {
+    width: 280px; height: 280px;
+    border-radius: 32px;
+    background: var(--orange-pale);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    box-shadow: 0 16px 48px rgba(232,98,26,0.12);
+}
+
+/* ════════════════════════════════
+   QUOTE BLOCK
+════════════════════════════════ */
+.quote-wrap {
+    background: var(--orange);
+    border-radius: var(--card-radius);
+    padding: 40px 48px;
     margin: 40px 0;
-    background: linear-gradient(135deg, rgba(245,166,35,.08), rgba(232,115,42,.04));
-    border-radius: 0 12px 12px 0;
     position: relative;
     overflow: hidden;
 }
-.quote-block::before {
+.quote-wrap::before {
     content: '\201C';
     position: absolute;
-    right: 20px; top: -10px;
-    font-size: 100px;
-    font-family: 'Playfair Display', serif;
-    color: rgba(232,115,42,.08);
+    right: 32px; top: -16px;
+    font-size: 120px;
+    font-family: 'DM Serif Display', serif;
+    color: rgba(255,255,255,0.12);
     line-height: 1;
 }
-.quote-hindi { font-family: 'Noto Sans Devanagari', sans-serif; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
-.quote-translation { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; color: var(--muted); }
+.quote-hindi {
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+.quote-en {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: rgba(255,255,255,0.75);
+}
 
-/* ── Pill ── */
-.pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
-.pill {
-    background: rgba(26,122,110,.10);
-    border: 1px solid rgba(26,122,110,.25);
-    color: var(--teal);
-    border-radius: 999px;
-    padding: 7px 18px;
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    transition: background .2s, transform .2s;
+/* ════════════════════════════════
+   AUDIENCE CARDS
+════════════════════════════════ */
+.aud-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 40px;
+}
+.aud-card {
+    background: var(--off-white);
+    border-radius: var(--card-radius);
+    padding: 32px;
+    border: 1.5px solid var(--border);
+    transition: border-color .2s, transform .2s, box-shadow .2s;
     cursor: default;
 }
-.pill:hover { background: rgba(26,122,110,.18); transform: scale(1.05); }
-
-/* ── Audience cards ── */
-.aud-card {
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 28px 30px 24px;
-    border: 1.5px solid rgba(196,89,58,.10);
-    margin-bottom: 16px;
-    transition: transform .2s, box-shadow .2s, border-color .2s;
-}
 .aud-card:hover {
-    transform: translateX(7px);
-    box-shadow: -4px 0 0 var(--saffron), 6px 10px 28px rgba(44,24,16,.09);
-    border-color: rgba(232,115,42,.28);
+    border-color: var(--orange);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(232,98,26,0.10);
 }
-.aud-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 10px; }
-.aud-body  { font-family: 'Lato', sans-serif; font-weight: 300; font-size: 15px; color: #4A3328; line-height: 1.75; }
+.aud-emoji { font-size: 32px; margin-bottom: 14px; display: block; }
+.aud-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 10px;
+}
+.aud-body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+}
 
-/* ── Fun strip ── */
-.fun-strip {
-    background: var(--teal);
-    color: white;
-    padding: 40px;
-    text-align: center;
+/* ════════════════════════════════
+   PILLS
+════════════════════════════════ */
+.pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.pill {
+    background: var(--orange-pale);
+    color: var(--orange);
+    border: 1.5px solid rgba(232,98,26,0.25);
+    border-radius: var(--pill-radius);
+    padding: 8px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: default;
+    transition: background .2s, transform .15s;
 }
-.fun-strip-title {
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 22px;
-    color: rgba(255,255,255,.88);
-    margin-bottom: 28px;
-}
-.fun-nums { display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; }
-.fun-num-val   { font-family: 'Playfair Display', serif; font-size: 52px; color: var(--marigold); line-height: 1; margin-bottom: 6px; }
-.fun-num-label { font-family: 'Lato', sans-serif; font-weight: 300; font-size: 12px; letter-spacing: 2px; color: rgba(255,255,255,.65); text-transform: uppercase; }
+.pill:hover { background: #FFE0CC; transform: scale(1.04); }
 
-/* ── Info blocks ── */
-.info-block {
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 32px;
-    border: 1.5px solid rgba(232,115,42,.12);
+/* ════════════════════════════════
+   INFO CARDS (Practical)
+════════════════════════════════ */
+.info-card {
+    background: var(--off-white);
+    border-radius: var(--card-radius);
+    padding: 36px;
+    border: 1.5px solid var(--border);
     margin-bottom: 20px;
-    transition: transform .2s, box-shadow .2s;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
 }
-.info-block:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(44,24,16,.09); }
-.info-block h3 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--ink); margin: 0 0 12px; }
-.info-block p, .info-block li { font-family: 'Lato', sans-serif; font-weight: 300; font-size: 15px; color: #4A3328; line-height: 1.7; }
-.info-block ul { padding-left: 18px; }
+.info-card:hover {
+    border-color: rgba(232,98,26,0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(232,98,26,0.08);
+}
+.info-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--ink);
+    margin: 0 0 14px;
+}
+.info-card p, .info-card li {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    color: var(--ink-mid);
+    line-height: 1.75;
+}
+.info-card ul { padding-left: 18px; }
+.info-card strong { color: var(--ink); font-weight: 500; }
 
-.rule { border: none; border-top: 1px solid rgba(44,24,16,.10); margin: 44px 0; }
-
-/* ── Footer ── */
-.footer {
-    background: #2C1810;
+/* ════════════════════════════════
+   CTA BANNER (Google Store: orange full-bleed)
+════════════════════════════════ */
+.cta-banner {
+    background: linear-gradient(135deg, var(--orange) 0%, var(--marigold) 100%);
+    padding: 72px 80px;
     text-align: center;
-    padding: 30px 20px;
-    font-family: 'Lato', sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+.cta-banner::before {
+    content: 'शिक्षा';
+    position: absolute;
+    font-family: 'Noto Sans Devanagari', sans-serif;
+    font-size: 200px;
+    color: rgba(255,255,255,0.06);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+}
+.cta-banner-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 40px;
+    color: white;
+    margin-bottom: 14px;
+    position: relative;
+}
+.cta-banner-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 36px;
+    position: relative;
+}
+.btn-white {
+    background: white;
+    color: var(--orange);
+    border-radius: var(--pill-radius);
+    padding: 15px 36px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    display: inline-block;
+    transition: box-shadow .2s, transform .15s;
+    position: relative;
+}
+.btn-white:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+}
+
+/* ════════════════════════════════
+   DIVIDER
+════════════════════════════════ */
+.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+}
+
+/* ════════════════════════════════
+   FOOTER
+════════════════════════════════ */
+.site-footer {
+    background: var(--ink);
+    padding: 40px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.footer-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: white;
+}
+.footer-brand span { color: var(--orange); font-style: italic; }
+.footer-copy {
+    font-family: 'DM Sans', sans-serif;
     font-weight: 300;
     font-size: 13px;
-    color: rgba(253,246,236,.4);
-    letter-spacing: .5px;
+    color: rgba(255,255,255,0.4);
 }
-.footer span { color: var(--saffron); }
-.footer-diyas { font-size: 22px; margin-bottom: 8px; letter-spacing: 8px; }
+.footer-diyas { font-size: 20px; letter-spacing: 6px; }
 </style>
+""", unsafe_allow_html=True)
+
+# ── Top Nav ───────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="topnav">
+  <div>
+    <span class="topnav-brand">Shi<span>ksha</span> <span style="font-family:'Noto Sans Devanagari',sans-serif;font-size:18px;color:var(--orange);">शिक्षा</span></span>
+  </div>
+  <a class="topnav-cta" href="#">Get in touch</a>
+</div>
 """, unsafe_allow_html=True)
 
 # ── Festival ticker ───────────────────────────────────────────────────────────
 st.markdown("""
-<div class="ticker-wrap">
-  <span class="ticker-content">
-    🪔 Diwali — Festival of Lights &nbsp;·&nbsp;
-    🌈 Holi — Festival of Colours &nbsp;·&nbsp;
-    🌙 Eid Mubarak &nbsp;·&nbsp;
-    🌸 Navratri — Nine Nights of Dance &nbsp;·&nbsp;
-    🥁 Baisakhi — Harvest Celebration &nbsp;·&nbsp;
-    🪁 Makar Sankranti — Kite Festival &nbsp;·&nbsp;
-    🐘 Ganesh Chaturthi &nbsp;·&nbsp;
-    🌺 Pongal — Tamil New Year &nbsp;·&nbsp;
-    🎋 Onam — Kerala's Grand Harvest &nbsp;·&nbsp;
-    🎊 Raksha Bandhan &nbsp;·&nbsp;
-    🎵 Janmashtami &nbsp;·&nbsp;
-  </span>
+<div class="ticker-outer">
+  <div class="ticker-inner">
+    <div class="ticker-track">
+      <span>🪔 Diwali</span><span class="ticker-sep">·</span>
+      <span>🌈 Holi</span><span class="ticker-sep">·</span>
+      <span>🌙 Eid Mubarak</span><span class="ticker-sep">·</span>
+      <span>🌸 Navratri</span><span class="ticker-sep">·</span>
+      <span>🥁 Baisakhi</span><span class="ticker-sep">·</span>
+      <span>🪁 Makar Sankranti</span><span class="ticker-sep">·</span>
+      <span>🐘 Ganesh Chaturthi</span><span class="ticker-sep">·</span>
+      <span>🌺 Pongal</span><span class="ticker-sep">·</span>
+      <span>🎋 Onam</span><span class="ticker-sep">·</span>
+      <span>🎊 Raksha Bandhan</span><span class="ticker-sep">·</span>
+      <span>🎵 Janmashtami</span><span class="ticker-sep">·</span>
+      <span>🪔 Diwali</span><span class="ticker-sep">·</span>
+      <span>🌈 Holi</span><span class="ticker-sep">·</span>
+      <span>🌙 Eid Mubarak</span><span class="ticker-sep">·</span>
+      <span>🌸 Navratri</span><span class="ticker-sep">·</span>
+      <span>🥁 Baisakhi</span><span class="ticker-sep">·</span>
+      <span>🪁 Makar Sankranti</span><span class="ticker-sep">·</span>
+      <span>🐘 Ganesh Chaturthi</span><span class="ticker-sep">·</span>
+      <span>🌺 Pongal</span><span class="ticker-sep">·</span>
+      <span>🎋 Onam</span><span class="ticker-sep">·</span>
+      <span>🎊 Raksha Bandhan</span><span class="ticker-sep">·</span>
+      <span>🎵 Janmashtami</span><span class="ticker-sep">·</span>
+    </div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
 # ── Hero ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="hero">
-  <svg class="hero-rangoli" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="100" cy="100" r="95" stroke="#F5A623" stroke-width="1.5" fill="none"/>
-    <circle cx="100" cy="100" r="75" stroke="#E8732A" stroke-width="1"   fill="none"/>
-    <circle cx="100" cy="100" r="55" stroke="#F5A623" stroke-width="1.5" fill="none"/>
-    <circle cx="100" cy="100" r="35" stroke="#E8732A" stroke-width="1"   fill="none"/>
-    <circle cx="100" cy="100" r="14" fill="#F5A623"   fill-opacity="0.5"/>
-    <ellipse cx="100" cy="18"  rx="8" ry="18" fill="#F5A623" fill-opacity="0.55"/>
-    <ellipse cx="100" cy="182" rx="8" ry="18" fill="#F5A623" fill-opacity="0.55"/>
-    <ellipse cx="18"  cy="100" rx="18" ry="8" fill="#F5A623" fill-opacity="0.55"/>
-    <ellipse cx="182" cy="100" rx="18" ry="8" fill="#F5A623" fill-opacity="0.55"/>
-    <ellipse cx="43"  cy="43"  rx="8" ry="18" transform="rotate(45 43 43)"   fill="#E8732A" fill-opacity="0.45"/>
-    <ellipse cx="157" cy="43"  rx="8" ry="18" transform="rotate(-45 157 43)" fill="#E8732A" fill-opacity="0.45"/>
-    <ellipse cx="43"  cy="157" rx="8" ry="18" transform="rotate(-45 43 157)" fill="#E8732A" fill-opacity="0.45"/>
-    <ellipse cx="157" cy="157" rx="8" ry="18" transform="rotate(45 157 157)" fill="#E8732A" fill-opacity="0.45"/>
-    <polygon points="100,62 107,88 134,88 113,104 121,130 100,115 79,130 87,104 66,88 93,88"
-             fill="#F5A623" fill-opacity="0.35"/>
-  </svg>
+  <div class="hero-text">
+    <div class="hero-eyebrow">
+      <span class="hero-dot"></span>
+      Cultural tutorship for children
+    </div>
+    <div class="hero-title">
+      Learn India.<br>
+      <span class="hero-title-accent">Love the story.</span>
+    </div>
+    <div class="hero-deva">शिक्षा — Education</div>
+    <div class="hero-sub">
+      A warm, personal journey into Indian culture — language, festivals,
+      food, traditions &amp; stories — for children and families wherever they are.
+    </div>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#">Start your journey</a>
+      <a class="btn-ghost" href="#">Learn more</a>
+    </div>
+  </div>
 
-  <div class="hero-eyebrow">शिक्षा · A Space to Learn &amp; Belong</div>
-  <div class="hero-title">Welcome to <span>Shiksha</span></div>
-  <div class="hero-deva">शिक्षा</div>
-  <div class="hero-tagline">
-    A warm, personal journey into Indian culture — language, festivals,
-    food, traditions &amp; stories — for children and families wherever they are.
+  <div class="hero-visual">
+    <div class="hero-circle-bg">
+      <svg class="rangoli-bg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="95" stroke="#E8621A" stroke-width="2" fill="none"/>
+        <circle cx="100" cy="100" r="70" stroke="#F5A623" stroke-width="1.5" fill="none"/>
+        <circle cx="100" cy="100" r="45" stroke="#E8621A" stroke-width="2" fill="none"/>
+        <ellipse cx="100" cy="12" rx="9" ry="20" fill="#E8621A" fill-opacity="0.6"/>
+        <ellipse cx="100" cy="188" rx="9" ry="20" fill="#E8621A" fill-opacity="0.6"/>
+        <ellipse cx="12" cy="100" rx="20" ry="9" fill="#E8621A" fill-opacity="0.6"/>
+        <ellipse cx="188" cy="100" rx="20" ry="9" fill="#E8621A" fill-opacity="0.6"/>
+        <ellipse cx="40" cy="40" rx="9" ry="20" transform="rotate(45 40 40)" fill="#F5A623" fill-opacity="0.5"/>
+        <ellipse cx="160" cy="40" rx="9" ry="20" transform="rotate(-45 160 40)" fill="#F5A623" fill-opacity="0.5"/>
+        <ellipse cx="40" cy="160" rx="9" ry="20" transform="rotate(-45 40 160)" fill="#F5A623" fill-opacity="0.5"/>
+        <ellipse cx="160" cy="160" rx="9" ry="20" transform="rotate(45 160 160)" fill="#F5A623" fill-opacity="0.5"/>
+        <circle cx="100" cy="100" r="12" fill="#E8621A" fill-opacity="0.7"/>
+      </svg>
+      <span class="hero-emoji-main">🪔</span>
+      <span class="hero-emoji-orbit orbit-1">🎉</span>
+      <span class="hero-emoji-orbit orbit-2">🍛</span>
+      <span class="hero-emoji-orbit orbit-3">🗣️</span>
+      <span class="hero-emoji-orbit orbit-4">🎨</span>
+    </div>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Floating diyas ────────────────────────────────────────────────────────────
+# ── Stats bar ─────────────────────────────────────────────────────────────────
 st.markdown("""
-<div class="diya-row">
-  <span class="diya">🪔</span>
-  <span class="diya">🪔</span>
-  <span class="diya">🪔</span>
-  <span class="diya">🪔</span>
-  <span class="diya">🪔</span>
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-val">22+</div><div class="stat-label">Official languages in India</div></div>
+  <div class="stat-item"><div class="stat-val">40+</div><div class="stat-label">Festivals celebrated yearly</div></div>
+  <div class="stat-item"><div class="stat-val">5000</div><div class="stat-label">Years of living history</div></div>
+  <div class="stat-item"><div class="stat-val">6</div><div class="stat-label">Major religions &amp; traditions</div></div>
 </div>
 """, unsafe_allow_html=True)
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tabs = st.tabs(["🏠 Home", "🪔 About Shiksha", "🌸 About the Author", "👨‍👩‍👧 For Who", "📋 Practical Information"])
+tabs = st.tabs(["Home", "About Shiksha", "About the Author", "For Who", "Practical Information"])
 
-# ════════ HOME ════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════
+# HOME
+# ════════════════════════════════════════════════════════════════════════════
 with tabs[0]:
+    # What we explore
     st.markdown("""
-    <div class="section">
-        <div class="section-label">A Little Corner of India</div>
-        <div class="section-heading">Where every child can find <em>their roots</em></div>
-        <br/>
-        <div class="prose">
-            Whether your family grew up lighting diyas at Diwali, or you're discovering
-            the beauty of India's traditions for the very first time — Shiksha is here for you.
-            <br/><br/>
-            This is not a classroom. It's a gathering. A place where children can hear a Hindi
-            story, taste the name of a spice, and understand <em>why</em> we celebrate the way we do.
-            Learning happens when it feels like belonging.
-        </div>
-
-        <div class="quote-block">
-            <div class="quote-hindi">ज्ञान ही शक्ति है।</div>
-            <div class="quote-translation">"Knowledge is power." — Indian proverb</div>
-        </div>
-
-        <div class="section-label" style="margin-top:40px;">What We Explore Together</div>
-        <div class="cards-row">
-            <div class="card" style="animation-delay:.0s"><span class="card-icon">🗣️</span><div class="card-title">Hindi</div><div class="card-sub">Words, scripts &amp; simple conversation</div></div>
-            <div class="card" style="animation-delay:.1s"><span class="card-icon">🎉</span><div class="card-title">Festivals</div><div class="card-sub">Diwali, Holi, Eid, Navratri &amp; more</div></div>
-            <div class="card" style="animation-delay:.2s"><span class="card-icon">🏺</span><div class="card-title">Traditions</div><div class="card-sub">Rituals, customs &amp; their meaning</div></div>
-            <div class="card" style="animation-delay:.3s"><span class="card-icon">🙏</span><div class="card-title">Religion</div><div class="card-sub">Stories &amp; values from India's faiths</div></div>
-            <div class="card" style="animation-delay:.4s"><span class="card-icon">🍛</span><div class="card-title">Cuisine</div><div class="card-sub">Flavours, spices &amp; food stories</div></div>
-            <div class="card" style="animation-delay:.5s"><span class="card-icon">🎨</span><div class="card-title">Arts &amp; Crafts</div><div class="card-sub">Rangoli, mehendi &amp; music</div></div>
-        </div>
+    <div class="page-section">
+      <div class="s-label">What we explore</div>
+      <div class="s-heading">Six windows into <em>India</em></div>
+      <div class="s-body" style="margin-top:12px;">
+        From the alphabet to the spice rack — each subject is a doorway into something
+        rich and alive. Children pick favourites, follow their curiosity, and build
+        a genuine connection to Indian culture.
+      </div>
+      <div class="subjects-grid">
+        <div class="subject-card" style="animation-delay:.05s"><span class="subject-icon">🗣️</span><div class="subject-name">Hindi</div><div class="subject-desc">Words, Devanagari script &amp; simple conversation</div></div>
+        <div class="subject-card" style="animation-delay:.10s"><span class="subject-icon">🎉</span><div class="subject-name">Festivals</div><div class="subject-desc">Diwali, Holi, Eid, Navratri &amp; more</div></div>
+        <div class="subject-card" style="animation-delay:.15s"><span class="subject-icon">🏺</span><div class="subject-name">Traditions</div><div class="subject-desc">Rituals, customs &amp; their deeper meaning</div></div>
+        <div class="subject-card" style="animation-delay:.20s"><span class="subject-icon">🙏</span><div class="subject-name">Religion</div><div class="subject-desc">Stories &amp; values from India's great faiths</div></div>
+        <div class="subject-card" style="animation-delay:.25s"><span class="subject-icon">🍛</span><div class="subject-name">Cuisine</div><div class="subject-desc">Flavours, spices &amp; the stories food carries</div></div>
+        <div class="subject-card" style="animation-delay:.30s"><span class="subject-icon">🎨</span><div class="subject-name">Arts &amp; Crafts</div><div class="subject-desc">Rangoli, mehendi, music &amp; dance</div></div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown('<hr class="divider"/>', unsafe_allow_html=True)
+
+    # Feature block 1
     st.markdown("""
-    <div class="fun-strip">
-        <div class="fun-strip-title">India in numbers — a taste of how rich this culture is</div>
-        <div class="fun-nums">
-            <div><div class="fun-num-val">22+</div><div class="fun-num-label">Official languages</div></div>
-            <div><div class="fun-num-val">40+</div><div class="fun-num-label">Festivals a year</div></div>
-            <div><div class="fun-num-val">5000</div><div class="fun-num-label">Years of history</div></div>
-            <div><div class="fun-num-val">6</div><div class="fun-num-label">Major religions</div></div>
+    <div class="feature-block">
+      <div class="feature-text">
+        <div class="s-label">A little corner of India</div>
+        <div class="s-heading">Not a classroom.<br><em>A gathering.</em></div>
+        <div class="s-body" style="margin-top:16px;">
+          Whether your family grew up lighting diyas at Diwali, or you're discovering
+          the beauty of India's traditions for the very first time — Shiksha is here for you.
+          <br/><br/>
+          A place where children can hear a Hindi story, taste the name of a spice,
+          and understand <em>why</em> we celebrate the way we do. Learning happens
+          when it feels like belonging.
         </div>
+      </div>
+      <div class="feature-visual">
+        <div class="feature-emoji-wrap">🏡</div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
+    # Feature block 2
     st.markdown("""
-    <div class="section">
-        <div class="section-label">Why Shiksha?</div>
-        <div class="section-heading">Culture isn't just <em>history</em></div>
-        <br/>
-        <div class="prose">
-            For many families raising children outside India — or for families
-            new to Indian culture — it can feel hard to know where to start.
-            How do you pass on something as vast and rich as Indian heritage
-            in a way that feels alive, not like homework?
-            <br/><br/>
-            Shiksha starts small: one festival, one dish, one word at a time.
-            The goal is never to overwhelm — it's to spark curiosity and give
-            children a sense of pride in where they come from, or where they belong.
+    <div class="feature-block flipped">
+      <div class="feature-text">
+        <div class="s-label">Why Shiksha?</div>
+        <div class="s-heading">Culture isn't just <em>history</em></div>
+        <div class="s-body" style="margin-top:16px;">
+          For many families raising children outside India, it can feel hard to know
+          where to start. How do you pass on something as vast as Indian heritage
+          in a way that feels alive, not like homework?
+          <br/><br/>
+          Shiksha starts small: one festival, one dish, one word at a time.
+          The goal is to spark curiosity — and give children a sense of pride
+          in where they come from, or where they belong.
         </div>
+      </div>
+      <div class="feature-visual">
+        <div class="feature-emoji-square">✨</div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ════════ ABOUT SHIKSHA ═══════════════════════════════════════════════════════
+    # CTA banner
+    st.markdown("""
+    <div class="cta-banner">
+      <div class="cta-banner-title">Ready to start the conversation?</div>
+      <div class="cta-banner-sub">First introductory session is always free. No commitment needed.</div>
+      <a class="btn-white" href="#">Get in touch ✉️</a>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ════════════════════════════════════════════════════════════════════════════
+# ABOUT SHIKSHA
+# ════════════════════════════════════════════════════════════════════════════
 with tabs[1]:
     st.markdown("""
-    <div class="section">
-        <div class="section-label">The Project</div>
-        <div class="section-heading">What is <em>Shiksha</em>?</div>
-        <br/>
-        <div class="prose">
-            Shiksha (शिक्षा) is the Sanskrit and Hindi word for <em>education</em>.
-            It felt like the right name for a project that believes learning about
-            culture is one of the most profound gifts we can give a child.
-            <br/><br/>
-            This is a small, personal tutorship — not a school, not a business.
-            It's a series of gentle sessions where children aged 5 to 14 can explore
-            Indian culture through stories, activities, cooking, crafts, and language.
-        </div>
+    <div class="page-section">
+      <div class="s-label">The project</div>
+      <div class="s-heading">What is <em>Shiksha</em>?</div>
+      <div class="s-body" style="margin-top:16px;">
+        Shiksha (शिक्षा) is the Sanskrit and Hindi word for <em>education</em>.
+        It felt like the right name for a project that believes learning about
+        culture is one of the most profound gifts we can give a child.
+        <br/><br/>
+        This is a small, personal tutorship — not a school, not a business.
+        A series of gentle sessions where children aged 5 to 14 can explore
+        Indian culture through stories, activities, cooking, crafts, and language.
+      </div>
 
-        <hr class="rule"/>
+      <div class="quote-wrap" style="margin-top:48px;">
+        <div class="quote-hindi">पढ़ना लिखना सीखो, ओ मेहनत करने वालों।</div>
+        <div class="quote-en">"Learn to read and write, O hardworking ones." — folk saying</div>
+      </div>
 
-        <div class="section-label">The Subjects</div>
-        <div class="section-heading">Six threads of <em>one rich fabric</em></div>
-        <div class="cards-row">
-            <div class="card" style="animation-delay:.0s"><span class="card-icon">🗣️</span><div class="card-title">Hindi Language</div><div class="card-sub">Devanagari script, vocabulary &amp; songs</div></div>
-            <div class="card" style="animation-delay:.1s"><span class="card-icon">🎊</span><div class="card-title">Festivals</div><div class="card-sub">The calendar &amp; stories behind each celebration</div></div>
-            <div class="card" style="animation-delay:.2s"><span class="card-icon">🙏</span><div class="card-title">Religions</div><div class="card-sub">Hinduism, Islam, Sikhism, Buddhism &amp; Jainism</div></div>
-            <div class="card" style="animation-delay:.3s"><span class="card-icon">🏺</span><div class="card-title">Traditions</div><div class="card-sub">Weddings, seasons &amp; daily rituals</div></div>
-            <div class="card" style="animation-delay:.4s"><span class="card-icon">🍛</span><div class="card-title">Cuisine</div><div class="card-sub">Spices, regional dishes &amp; food stories</div></div>
-            <div class="card" style="animation-delay:.5s"><span class="card-icon">🎨</span><div class="card-title">Arts &amp; Crafts</div><div class="card-sub">Rangoli, mehendi, music &amp; dance</div></div>
-        </div>
+      <div class="s-label" style="margin-top:56px;">The subjects</div>
+      <div class="s-heading">Six threads of <em>one rich fabric</em></div>
+      <div class="subjects-grid" style="margin-top:32px;">
+        <div class="subject-card" style="animation-delay:.05s"><span class="subject-icon">🗣️</span><div class="subject-name">Hindi Language</div><div class="subject-desc">Devanagari script, vocabulary, songs &amp; conversation</div></div>
+        <div class="subject-card" style="animation-delay:.10s"><span class="subject-icon">🎊</span><div class="subject-name">Festivals</div><div class="subject-desc">The calendar &amp; the stories behind each celebration</div></div>
+        <div class="subject-card" style="animation-delay:.15s"><span class="subject-icon">🙏</span><div class="subject-name">Religions</div><div class="subject-desc">Hinduism, Islam, Sikhism, Buddhism &amp; Jainism</div></div>
+        <div class="subject-card" style="animation-delay:.20s"><span class="subject-icon">🏺</span><div class="subject-name">Traditions</div><div class="subject-desc">Weddings, seasons &amp; daily rituals</div></div>
+        <div class="subject-card" style="animation-delay:.25s"><span class="subject-icon">🍛</span><div class="subject-name">Cuisine</div><div class="subject-desc">Spices, regional dishes &amp; food stories</div></div>
+        <div class="subject-card" style="animation-delay:.30s"><span class="subject-icon">🎨</span><div class="subject-name">Arts &amp; Crafts</div><div class="subject-desc">Rangoli, mehendi, music &amp; classical dance</div></div>
+      </div>
 
-        <hr class="rule"/>
-
-        <div class="quote-block">
-            <div class="quote-hindi">पढ़ना लिखना सीखो, ओ मेहनत करने वालों।</div>
-            <div class="quote-translation">"Learn to read and write, O hardworking ones." — folk saying</div>
-        </div>
-
-        <div class="prose">
-            Sessions are designed to be <strong>hands-on and playful</strong>.
-            A lesson about Diwali might end with making a paper diya.
-            A Hindi session might begin with learning the names of family members
-            through a silly game. The goal is for children to leave each session
-            with something they want to share at home.
-        </div>
+      <div class="s-body" style="margin-top:48px;">
+        Sessions are designed to be <strong style="color:var(--ink);">hands-on and playful</strong>.
+        A lesson about Diwali might end with making a paper diya. A Hindi session might begin
+        with learning family member names through a silly game. The goal is for children to
+        leave each session with something they want to share at home.
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ════════ ABOUT AUTHOR ════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════════════════
+# ABOUT AUTHOR
+# ════════════════════════════════════════════════════════════════════════════
 with tabs[2]:
     st.markdown("""
-    <div class="section">
-        <div class="section-label">The Person Behind Shiksha</div>
-        <div class="section-heading">A little bit <em>about me</em></div>
-        <br/>
-        <div class="prose">
-            Hello! I'm [Your Name] — and I started Shiksha because I kept asking myself:
-            <em>how do we pass this on?</em>
-            <br/><br/>
-            I grew up surrounded by the sounds of Hindi film songs in the kitchen,
-            the smell of incense on festival mornings, and the wonderful chaos of a
-            joint family. Somewhere along the way, I realised how precious those
-            memories were — and how easy it is for them to quietly fade when children
-            grow up far from their extended families or from India itself.
-            <br/><br/>
-            I'm not a professional teacher. I'm someone who loves Indian culture deeply,
-            speaks Hindi, has cooked dal from scratch more times than I can count,
-            and believes children learn best when they're having fun.
+    <div class="feature-block" style="background:var(--off-white);">
+      <div class="feature-text">
+        <div class="s-label">The person behind Shiksha</div>
+        <div class="s-heading">A little bit <em>about me</em></div>
+        <div class="s-body" style="margin-top:16px;">
+          Hello! I'm [Your Name] — and I started Shiksha because I kept asking myself:
+          <em>how do we pass this on?</em>
+          <br/><br/>
+          I grew up surrounded by the sounds of Hindi film songs in the kitchen,
+          the smell of incense on festival mornings, and the wonderful chaos of a
+          joint family. Somewhere along the way, I realised how precious those
+          memories were — and how easy it is for them to quietly fade when children
+          grow up far from their extended families or from India itself.
+          <br/><br/>
+          I'm not a professional teacher. I'm someone who loves Indian culture deeply,
+          speaks Hindi, has cooked dal from scratch more times than I can count,
+          and believes children learn best when they're having fun.
         </div>
-
-        <div class="quote-block">
-            <div class="quote-hindi">संस्कृति वो है जो हम अगली पीढ़ी को देते हैं।</div>
-            <div class="quote-translation">"Culture is what we pass on to the next generation."</div>
-        </div>
-
-        <div class="section-label">A little more about me</div>
-        <div class="pill-row">
-            <span class="pill">🇮🇳 Grew up in [City], India</span>
-            <span class="pill">🌍 Living in [Your Country] since [Year]</span>
-            <span class="pill">📚 Background in [Your Field]</span>
-            <span class="pill">🍳 Amateur cook of Indian food</span>
-            <span class="pill">🎵 Big fan of Bollywood classics</span>
-            <span class="pill">🌸 Storyteller at heart</span>
-        </div>
-
-        <hr class="rule"/>
-
-        <div class="prose">
-            I started these sessions with my own children's friends, and I was amazed
-            at how curious kids are — how they want to understand, not just memorise.
-            A child asking <em>"but why do we burst crackers?"</em> is more exciting
-            to me than any exam result.
-            <br/><br/>
-            Shiksha is small by design. I see small groups, I take my time,
-            and I get to know each child's curiosity. If you'd like to meet
-            over a cup of chai before signing up — I'd love that. ☕
-        </div>
+      </div>
+      <div class="feature-visual">
+        <div class="feature-emoji-wrap">🌸</div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ════════ FOR WHO ═════════════════════════════════════════════════════════════
+    st.markdown("""
+    <div class="page-section">
+      <div class="quote-wrap">
+        <div class="quote-hindi">संस्कृति वो है जो हम अगली पीढ़ी को देते हैं।</div>
+        <div class="quote-en">"Culture is what we pass on to the next generation."</div>
+      </div>
+
+      <div class="s-label" style="margin-top:48px;">A little more about me</div>
+      <div class="pill-row">
+        <span class="pill">🇮🇳 Grew up in [City], India</span>
+        <span class="pill">🌍 Living in [Country] since [Year]</span>
+        <span class="pill">📚 Background in [Your Field]</span>
+        <span class="pill">🍳 Amateur cook of Indian food</span>
+        <span class="pill">🎵 Bollywood classics fan</span>
+        <span class="pill">🌸 Storyteller at heart</span>
+      </div>
+
+      <div class="s-body" style="margin-top:48px;">
+        I started these sessions with my own children's friends, and I was amazed
+        at how curious kids are — how they want to understand, not just memorise.
+        A child asking <em>"but why do we burst crackers?"</em> is more exciting
+        to me than any exam result.
+        <br/><br/>
+        Shiksha is small by design. I see small groups, I take my time,
+        and I get to know each child's curiosity. If you'd like to meet
+        over a cup of chai before signing up — I'd love that. ☕
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ════════════════════════════════════════════════════════════════════════════
+# FOR WHO
+# ════════════════════════════════════════════════════════════════════════════
 with tabs[3]:
     st.markdown("""
-    <div class="section">
-        <div class="section-label">Who is this for?</div>
-        <div class="section-heading">For curious children <em>everywhere</em></div>
-        <br/>
-        <div class="prose">
-            Shiksha was designed with a few families in mind — and chances are,
-            you'll recognise yourself in one of them.
-        </div>
-        <br/>
+    <div class="page-section">
+      <div class="s-label">Who is this for?</div>
+      <div class="s-heading">For curious children <em>everywhere</em></div>
+      <div class="s-body" style="margin-top:12px;">
+        Shiksha was designed with a few families in mind — chances are,
+        you'll recognise yourself in one of them.
+      </div>
 
+      <div class="aud-grid">
         <div class="aud-card">
-            <div class="aud-title">🏡 Families of Indian heritage living abroad</div>
-            <div class="aud-body">Your children were born here, but you want them to understand where
-            your family comes from — the language your parents spoke, the festivals you grew up celebrating,
-            the food that makes you feel at home. Shiksha is a gentle bridge between two worlds.</div>
+          <span class="aud-emoji">🏡</span>
+          <div class="aud-title">Families of Indian heritage living abroad</div>
+          <div class="aud-body">Your children were born here, but you want them to understand where your family comes from — the language your parents spoke, the festivals you grew up celebrating. Shiksha is a gentle bridge between two worlds.</div>
         </div>
-
         <div class="aud-card">
-            <div class="aud-title">🌍 Mixed-heritage and multicultural families</div>
-            <div class="aud-body">One parent is Indian, one is not — or your family has woven together
-            multiple cultures. Indian culture is one colourful thread in your child's identity,
-            and Shiksha helps them hold it with pride and understanding.</div>
+          <span class="aud-emoji">🌍</span>
+          <div class="aud-title">Mixed-heritage &amp; multicultural families</div>
+          <div class="aud-body">One parent is Indian, one is not — or your family has woven together multiple cultures. Indian culture is one colourful thread in your child's identity, and Shiksha helps them hold it with pride.</div>
         </div>
-
         <div class="aud-card">
-            <div class="aud-title">✨ Families new to Indian culture</div>
-            <div class="aud-body">You have Indian friends, neighbours, or colleagues. Or perhaps your child
-            is curious after learning about Diwali at school. You don't need to be Indian to appreciate
-            the richness of this culture — everyone is welcome.</div>
+          <span class="aud-emoji">✨</span>
+          <div class="aud-title">Families new to Indian culture</div>
+          <div class="aud-body">You have Indian friends, neighbours, or colleagues. Or perhaps your child is curious after learning about Diwali at school. You don't need to be Indian to appreciate the richness of this culture — everyone is welcome.</div>
         </div>
-
         <div class="aud-card">
-            <div class="aud-title">👧 Children aged 5 to 14</div>
-            <div class="aud-body">Sessions are tailored to age groups. Younger children (5–8) will love
-            stories, songs and crafts. Older children (9–14) can go deeper into language, history and meaning.
-            No prior knowledge needed — just an open mind and a healthy appetite (we do talk about food a lot 🍛).</div>
+          <span class="aud-emoji">👧</span>
+          <div class="aud-title">Children aged 5 to 14</div>
+          <div class="aud-body">Younger children (5–8) love stories, songs and crafts. Older children (9–14) go deeper into language, history and meaning. No prior knowledge needed — just an open mind and a healthy appetite 🍛.</div>
         </div>
-
-        <hr class="rule"/>
-
-        <div class="section-label">What parents can expect</div>
-        <div class="prose">
-            After each session, your child will come home with something:
-            a word, a story, a small craft, a question to ask you.
-            Sessions are never heavy. There are no grades, no pressure.
-            I want children to leave feeling like they've been part of something warm —
-            like visiting a family friend's home where something delicious was always on the stove.
-        </div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ════════ PRACTICAL INFO ══════════════════════════════════════════════════════
+    st.markdown("""
+    <div class="feature-block" style="background:var(--off-white);">
+      <div class="feature-text">
+        <div class="s-label">What parents can expect</div>
+        <div class="s-heading">Something to <em>take home</em></div>
+        <div class="s-body" style="margin-top:16px;">
+          After each session, your child will come home with something:
+          a word, a story, a small craft, a question to ask you.
+          <br/><br/>
+          Sessions are never heavy. There are no grades, no pressure.
+          I want children to leave feeling like they've been part of something warm —
+          like visiting a family friend's home where something delicious was always on the stove.
+        </div>
+      </div>
+      <div class="feature-visual">
+        <div class="feature-emoji-wrap">🎁</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ════════════════════════════════════════════════════════════════════════════
+# PRACTICAL INFO
+# ════════════════════════════════════════════════════════════════════════════
 with tabs[4]:
     st.markdown("""
-    <div class="section">
-        <div class="section-label">Everything you need to know</div>
-        <div class="section-heading">Practical <em>Information</em></div>
-        <br/>
-        <div class="prose">
-            I've tried to keep things simple and flexible.
-            If you have questions not answered here, please just reach out —
-            I'm always happy to have a conversation first. ☕
-        </div>
-        <br/>
+    <div class="page-section">
+      <div class="s-label">Everything you need to know</div>
+      <div class="s-heading">Practical <em>Information</em></div>
+      <div class="s-body" style="margin-top:12px;">
+        I've tried to keep things simple and flexible. If you have questions not
+        answered here, just reach out — I'm always happy to chat first. ☕
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2, gap="large")
     with col1:
         st.markdown("""
-        <div style="padding:0 20px 0 40px;">
-        <div class="info-block">
+        <div style="padding:0 16px 48px 48px;">
+          <div class="info-card">
             <h3>📅 Sessions</h3>
             <ul>
-                <li>Sessions run <strong>weekly</strong>, on weekends</li>
-                <li>Duration: <strong>60–90 minutes</strong> per age group</li>
-                <li>Small groups of <strong>4–6 children</strong> maximum</li>
-                <li><strong>In-person</strong> at [Location] or online via video call</li>
+              <li>Sessions run <strong>weekly</strong>, on weekends</li>
+              <li>Duration: <strong>60–90 minutes</strong> per age group</li>
+              <li>Small groups of <strong>4–6 children</strong> maximum</li>
+              <li><strong>In-person</strong> at [Location] or online via video call</li>
             </ul>
-        </div>
-        <div class="info-block">
+          </div>
+          <div class="info-card">
             <h3>🎒 What to bring</h3>
             <ul>
-                <li>Curiosity — that's really all!</li>
-                <li>For in-person: a small notebook</li>
-                <li>Occasionally: a simple ingredient for cooking activities (I'll always let you know in advance)</li>
+              <li>Curiosity — that's really all!</li>
+              <li>For in-person: a small notebook</li>
+              <li>Occasionally: a simple ingredient for cooking activities (I'll always let you know in advance)</li>
             </ul>
-        </div>
-        <div class="info-block">
+          </div>
+          <div class="info-card">
             <h3>🗓️ How to sign up</h3>
-            <p>Drop me an email or a WhatsApp message. I'll suggest a free 20-minute introductory chat so we
-            can meet and I can understand what your child is curious about. No commitment needed at that stage.</p>
-        </div>
+            <p>Drop me an email or a WhatsApp message. I'll suggest a free 20-minute introductory chat so we can meet and understand what your child is curious about. No commitment needed.</p>
+          </div>
         </div>
         """, unsafe_allow_html=True)
-
     with col2:
         st.markdown("""
-        <div style="padding:0 40px 0 20px;">
-        <div class="info-block">
+        <div style="padding:0 48px 48px 16px;">
+          <div class="info-card">
             <h3>💰 Pricing</h3>
             <ul>
-                <li>Single session: <strong>[Price]</strong></li>
-                <li>Monthly bundle (4 sessions): <strong>[Price]</strong></li>
-                <li>Sibling discount available</li>
-                <li>First introductory session: <strong>free</strong></li>
+              <li>Single session: <strong>[Price]</strong></li>
+              <li>Monthly bundle (4 sessions): <strong>[Price]</strong></li>
+              <li>Sibling discount available</li>
+              <li>First introductory session: <strong>free</strong></li>
             </ul>
-            <p style="font-size:13px;color:#7A6055;margin-top:10px;">
-                I want these sessions to be accessible. If pricing is a barrier, please reach out — let's talk.
+            <p style="font-size:13px;color:var(--ink-light);margin-top:12px;">
+              I want these sessions to be accessible. If pricing is a barrier, please reach out — let's talk.
             </p>
-        </div>
-        <div class="info-block">
+          </div>
+          <div class="info-card">
             <h3>🌐 Languages</h3>
-            <p>Sessions are conducted in <strong>English</strong>, with Hindi woven in naturally.
-            No Hindi knowledge needed to participate.</p>
-        </div>
-        <div class="info-block">
+            <p>Sessions are conducted in <strong>English</strong>, with Hindi woven in naturally. No Hindi knowledge needed to participate.</p>
+          </div>
+          <div class="info-card">
             <h3>📬 Get in touch</h3>
             <p>📧 <strong>[your@email.com]</strong><br/>
                📱 <strong>[Your phone / WhatsApp]</strong><br/>
                📍 <strong>[Your city / neighbourhood]</strong></p>
-            <p style="font-size:13px;color:#7A6055;margin-top:10px;">
-                I usually reply within 24 hours. WhatsApp messages are very welcome!
+            <p style="font-size:13px;color:var(--ink-light);margin-top:12px;">
+              I usually reply within 24 hours. WhatsApp very welcome!
             </p>
-        </div>
+          </div>
         </div>
         """, unsafe_allow_html=True)
 
-    st.markdown("<br/>", unsafe_allow_html=True)
+    st.markdown("""
+    <div class="cta-banner">
+      <div class="cta-banner-title">Let's start with a cup of chai ☕</div>
+      <div class="cta-banner-sub">Free 20-minute intro chat. No commitment. Just a conversation.</div>
+      <a class="btn-white" href="#">Get in touch</a>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
-<div class="footer">
-    <div class="footer-diyas">🪔 🌸 🪔 🌸 🪔</div>
-    Made with <span>♥</span> &nbsp;·&nbsp; Shiksha · शिक्षा &nbsp;·&nbsp;
-    Sharing Indian culture, one story at a time
+<div class="site-footer">
+  <div>
+    <div class="footer-brand">Shi<span>ksha</span></div>
+    <div style="font-family:'Noto Sans Devanagari',sans-serif;font-size:14px;color:rgba(255,255,255,0.3);margin-top:4px;">शिक्षा — Sharing Indian culture, one story at a time</div>
+  </div>
+  <div class="footer-diyas">🪔 🌸 🪔 🌸 🪔</div>
+  <div class="footer-copy">Made with ♥ · [Your city] · [Year]</div>
 </div>
 """, unsafe_allow_html=True)
